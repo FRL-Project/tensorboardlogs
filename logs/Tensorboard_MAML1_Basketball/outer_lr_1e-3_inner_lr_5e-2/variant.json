@@ -1,8 +1,0 @@
-{
-  "inner_lr": 0.05,
-  "seed": 1,
-  "epochs": 300,
-  "rollouts_per_task": 10,
-  "meta_batch_size": 20,
-  "outer_lr": 0.001
-}

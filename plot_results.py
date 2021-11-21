@@ -14,7 +14,7 @@ mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['figure.figsize'] = (8, 5)
 
 
-def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="../figures"):
+def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./figures"):
     test_avg_return_list = list()
     max_epochs = 0
 
@@ -53,8 +53,8 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="../fi
 
 
 if __name__ == '__main__':
-    log_path = "./logs/Tensorboard_MAML45/out-lr"
-    out_file_name = "maml45_trpo_outer_lr"
+    log_path = "./logs/Tensorboard_PEARL1_Basketball/lr"
+    out_file_name = log_path.replace("/", "_")[2:]
     dirs = [directory for directory in os.listdir(log_path) if os.path.isdir(os.path.join(log_path, directory))]
     dirs.sort()
 
