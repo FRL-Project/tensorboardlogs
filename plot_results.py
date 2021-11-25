@@ -14,10 +14,13 @@ mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['figure.figsize'] = (8, 5)
 
 
-def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./figures"):
+def plot_tensorflow_log(log_file_path_list, legend_names, fname,
+                        max_epochs_to_plot=300,
+                        out_path="./figures",
+                        x_axis_env_steps=False):
     test_avg_return_list = list()
-    max_epochs = 300
 
+    steps_to_plot = max_epochs_to_plot
     for log_path in log_file_path_list:
         event_acc = EventAccumulator(log_path)
         event_acc.Reload()
@@ -26,24 +29,24 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./fig
         # print(event_acc.Tags())
 
         test_avg_return = event_acc.Scalars('MetaTest/Average/AverageReturn')
-        max_epochs = min(max_epochs, len(test_avg_return))
-        test_avg_return_list.append(test_avg_return)
+        steps_to_plot = min(steps_to_plot, len(test_avg_return))
+        test_avg_return_list.append(np.array(test_avg_return))
 
     for avg_return, legend in zip(test_avg_return_list, legend_names):
-        steps = min(len(avg_return), max_epochs)
-        x = np.arange(steps)
-        y = np.zeros([steps, 2])
+        x = np.arange(steps_to_plot)
+        if x_axis_env_steps:
+            x = avg_return[:steps_to_plot, 1]
+        y = avg_return[:steps_to_plot, 2]  # 0 = time, 1 = steps, 2 = value
 
-        for i in range(steps):
-            y[i, 0] = avg_return[i][2]  # value
+        plt.plot(x, y, label=legend)
 
-        plt.plot(x, y[:, 0], label=legend)
+        print("legend:", legend, "| max y", np.max(y), "at epoch", np.argmax(y))
 
     plt.xlabel("Epoch")
     plt.ylabel("Average Return")
     plt.grid()
     plt.title("Meta Test Average Return")
-    plt.legend( frameon=True, prop={'size': 14})
+    plt.legend(frameon=True, prop={'size': 14})
 
     if not os.path.exists(out_path):
         os.mkdir(out_path)
