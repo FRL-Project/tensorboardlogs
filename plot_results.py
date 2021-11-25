@@ -16,7 +16,7 @@ mpl.rcParams['figure.figsize'] = (8, 5)
 
 def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./figures"):
     test_avg_return_list = list()
-    max_epochs = 0
+    max_epochs = 300
 
     for log_path in log_file_path_list:
         event_acc = EventAccumulator(log_path)
@@ -26,11 +26,11 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./fig
         # print(event_acc.Tags())
 
         test_avg_return = event_acc.Scalars('MetaTest/Average/AverageReturn')
-        max_epochs = max(max_epochs, len(test_avg_return))
+        max_epochs = min(max_epochs, len(test_avg_return))
         test_avg_return_list.append(test_avg_return)
 
     for avg_return, legend in zip(test_avg_return_list, legend_names):
-        steps = len(avg_return)
+        steps = min(len(avg_return), max_epochs)
         x = np.arange(steps)
         y = np.zeros([steps, 2])
 
@@ -53,7 +53,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./fig
 
 
 if __name__ == '__main__':
-    log_path = "./logs/Tensorboard_PEARL1_Basketball/lr"
+    log_path = "./logs/Tensorboard_MAML45/discount-f"
     out_file_name = log_path.replace("/", "_")[2:]
     dirs = [directory for directory in os.listdir(log_path) if os.path.isdir(os.path.join(log_path, directory))]
     dirs.sort()
