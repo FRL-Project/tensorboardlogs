@@ -43,7 +43,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, out_path="./fig
     plt.ylabel("Average Return")
     plt.grid()
     plt.title("Meta Test Average Return")
-    plt.legend(loc='lower right', frameon=True)
+    plt.legend( frameon=True, prop={'size': 14})
 
     if not os.path.exists(out_path):
         os.mkdir(out_path)
