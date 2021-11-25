@@ -1,0 +1,4 @@
+logs_Tensorboard_MAML1_Basketball_out-lr
+legend: lr=1e-3 | max y 4143.09716796875 at epoch 280
+legend: lr=5e-3 | max y 1037.99609375 at epoch 296
+legend: lr=5e-4 | max y 761.5885620117188 at epoch 103

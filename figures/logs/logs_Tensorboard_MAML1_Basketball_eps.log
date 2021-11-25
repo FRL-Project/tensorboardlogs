@@ -1,0 +1,5 @@
+logs_Tensorboard_MAML1_Basketball_eps
+legend: 10 | max y 1984.0745849609375 at epoch 289
+legend: 20 | max y 971.1320190429688 at epoch 287
+legend: 45 | max y 3302.733154296875 at epoch 273
+legend: 60 | max y 2724.25634765625 at epoch 276

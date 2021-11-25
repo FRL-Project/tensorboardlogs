@@ -1,0 +1,4 @@
+logs_Tensorboard_PEARL1_Basketball_lr
+legend: lr_1e-4 | max y 21.490880966186523 at epoch 110
+legend: lr_3e-4 | max y 1108.9466552734375 at epoch 116
+legend: lr_7e-4 | max y 19.383459091186523 at epoch 116
