@@ -1,5 +1,0 @@
-logs_Tensorboard_MAML10_eps
-legend: 10 | max y 1736.3140869140625 at epoch 105
-legend: 20 | max y 1706.1163330078125 at epoch 107
-legend: 45 | max y 1624.112060546875 at epoch 32
-legend: 60 | max y 1708.2808837890625 at epoch 35

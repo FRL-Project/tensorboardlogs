@@ -1,4 +1,0 @@
-logs_Tensorboard_MAML10_out-lr-new
-legend: 1e-3 | max y 1642.896240234375 at epoch 57
-legend: 5e-3 | max y 2039.5745849609375 at epoch 71
-legend: 5e-4 | max y 1869.6295166015625 at epoch 159

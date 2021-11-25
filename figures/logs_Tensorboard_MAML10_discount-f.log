@@ -1,4 +1,0 @@
-logs_Tensorboard_MAML10_discount-f
-legend: disc=0.95 | max y 1552.70263671875 at epoch 209
-legend: disc=0.99 | max y 1996.4095458984375 at epoch 271
-legend: disc=0.999 | max y 1652.023193359375 at epoch 126

@@ -32,7 +32,11 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname,
         steps_to_plot = min(steps_to_plot, len(test_avg_return))
         test_avg_return_list.append(np.array(test_avg_return))
 
-    log_file = open(os.path.join(out_path, fname + ".log"), "w")
+    log_dir = os.path.join(out_path, 'logs')
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+
+    log_file = open(os.path.join(log_dir, fname + ".log"), "w")
     log_str = str(out_file_name) + "\n"
     log_file.write(log_str)
 
