@@ -32,6 +32,10 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname,
         steps_to_plot = min(steps_to_plot, len(test_avg_return))
         test_avg_return_list.append(np.array(test_avg_return))
 
+    log_file = open(os.path.join(out_path, fname + ".log"), "w")
+    log_str = str(out_file_name) + "\n"
+    log_file.write(log_str)
+
     for avg_return, legend in zip(test_avg_return_list, legend_names):
         x = np.arange(steps_to_plot)
         if x_axis_env_steps:
@@ -40,7 +44,11 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname,
 
         plt.plot(x, y, label=legend)
 
-        print("legend:", legend, "| max y", np.max(y), "at epoch", np.argmax(y))
+        log_str = "legend: " + str(legend) + " | max y " + str(np.max(y)) + " at epoch " + str(np.argmax(y)) + "\n"
+        print(log_str, end='')
+        log_file.write(log_str)
+
+    log_file.close()
 
     plt.xlabel("Epoch")
     plt.ylabel("Average Return")
