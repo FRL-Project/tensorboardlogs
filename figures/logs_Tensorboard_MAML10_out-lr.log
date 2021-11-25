@@ -1,0 +1,4 @@
+logs_Tensorboard_MAML10_out-lr
+legend: outer_lr_1e-3 | max y 1652.3419189453125 at epoch 296
+legend: outer_lr_5e-3 | max y 1595.5069580078125 at epoch 174
+legend: outer_lr_5e-4 | max y 1230.3460693359375 at epoch 50
