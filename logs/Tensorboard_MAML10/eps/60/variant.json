@@ -1,0 +1,9 @@
+{
+  "episodes_per_task": 60,
+  "seed": 1,
+  "epochs": 2000,
+  "meta_batch_size": 20,
+  "inner_lr": 0.1,
+  "outer_lr": 0.001,
+  "discount": 0.99
+}
