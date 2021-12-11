@@ -81,6 +81,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
     plt.title(env + " Meta Test Average  Return")
     plt.legend(frameon=True, prop={'size': 14})
 
+    out_path = os.path.join(out_path, env)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
