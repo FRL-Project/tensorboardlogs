@@ -1,0 +1,5 @@
+logs_MAML_ML45_outer_lr
+legend: outer-lr=0.0005 | max y 496.66398602935556 at epoch 192
+legend: outer-lr=0.001 | max y 580.1410868783138 at epoch 264
+legend: outer-lr=0.005 | max y 500.6147602030065 at epoch 271
+legend: outer-lr=0.01 | max y 469.761006310603 at epoch 112

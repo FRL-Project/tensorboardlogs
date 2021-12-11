@@ -1,0 +1,4 @@
+logs_MAML_ML10_discount
+legend: disc=0.95 | max y 1561.546442876707 at epoch 174
+legend: disc=0.99 | max y 1384.558431443757 at epoch 454
+legend: disc=0.999 | max y 1342.3766374222319 at epoch 306

@@ -1,0 +1,5 @@
+logs_MAML_ML1_inner_lr
+legend: inner-lr=0.01 | max y 149.46254276916164 at epoch 89
+legend: inner-lr=0.05 | max y 4272.643459803192 at epoch 1651
+legend: inner-lr=0.1 | max y 3759.895066535545 at epoch 1523
+legend: inner-lr=0.5 | max y 4284.483658260309 at epoch 1556

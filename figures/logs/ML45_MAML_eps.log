@@ -1,0 +1,5 @@
+logs_MAML_ML45_eps
+legend: eps=10 | max y 514.2282806663858 at epoch 125
+legend: eps=20 | max y 530.5521507899168 at epoch 332
+legend: eps=45 | max y 405.3596002475008 at epoch 237
+legend: eps=60 | max y 431.84825562512117 at epoch 143
