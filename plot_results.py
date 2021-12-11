@@ -1,5 +1,6 @@
 # based on https://gist.github.com/tomrunia/1e1d383fb21841e8f144
 import os
+from typing import List
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -14,10 +15,24 @@ mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['figure.figsize'] = (8, 5)
 
 
+def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight between 0 and 1
+    # https://stackoverflow.com/questions/42281844/what-is-the-mathematics-behind-the-smoothing-parameter-in-tensorboards-scalar
+    last = scalars[0]  # First value in the plot (first timestep)
+    smoothed = list()
+    for point in scalars:
+        smoothed_val = last * weight + (1 - weight) * point  # Calculate smoothed value
+        smoothed.append(smoothed_val)  # Save it
+        last = smoothed_val  # Anchor the last smoothed value
+
+    return smoothed
+
+
 def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
                         max_epochs_to_plot=300,
                         out_path="./figures",
-                        x_axis_env_steps=False):
+                        x_axis_env_steps=False,
+                        smoothing_factor=0.6,
+                        override_steps_to_plot=True):
     test_avg_return_list = list()
 
     steps_to_plot = max_epochs_to_plot
@@ -41,11 +56,16 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
     log_file.write(log_str)
 
     for avg_return, legend in zip(test_avg_return_list, legend_names):
-        steps_to_plot = avg_return.shape[0]
+        if override_steps_to_plot:
+            steps_to_plot = avg_return.shape[0]
+
         x = np.arange(steps_to_plot)
         if x_axis_env_steps:
             x = avg_return[:steps_to_plot, 1]
         y = avg_return[:steps_to_plot, 2]  # 0 = time, 1 = steps, 2 = value
+
+        if smoothing_factor != 0.0:
+            y = smooth(y, smoothing_factor)
 
         plt.plot(x, y, label=legend)
 
