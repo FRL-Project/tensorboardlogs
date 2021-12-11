@@ -1,0 +1,4 @@
+logs_PEARL_ML1_lr
+legend: lr=1e-4 | max y 1445.4774851900706 at epoch 271
+legend: lr=3e-4 | max y 1801.2888811845876 at epoch 212
+legend: lr=7e-4 | max y 2591.3769831116133 at epoch 223
