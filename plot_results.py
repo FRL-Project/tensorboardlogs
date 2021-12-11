@@ -5,7 +5,7 @@ from typing import List
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator, ScalarEvent
 
 # TODO not sure if this is the correct font?
 # use latex font
@@ -27,45 +27,113 @@ def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight betwee
     return smoothed
 
 
-def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
+def get_scalars(event_acc, tags):
+    scalars = dict()
+    for tag in tags:
+        task_name = tag.split('/')[-2]
+        scalars[task_name] = event_acc.Scalars(tag)
+
+    return scalars
+
+
+def get_all_test_scalars(input_log_file_path: str):
+    event_acc = EventAccumulator(input_log_file_path)
+    event_acc.Reload()
+
+    # get all scalar tags in the log file
+    tags_scalars = event_acc.Tags()['scalars']
+
+    # filter MetaTest tags
+    meta_test_tags = [tag for tag in tags_scalars if "MetaTest" in tag]
+
+    meta_test_tags_average_return = [tag for tag in meta_test_tags if "AverageReturn" in tag]
+    meta_test_tags_success_rate = [tag for tag in meta_test_tags if "SuccessRate" in tag]
+
+    test_avg_return = get_scalars(event_acc, meta_test_tags_average_return)
+    test_success_rate = get_scalars(event_acc, meta_test_tags_success_rate)
+
+    return test_avg_return, test_success_rate
+
+
+def get_x_y_values(scalar_event: ScalarEvent,
+                   override_steps_to_plot: bool,
+                   smoothing_factor: float,
+                   steps_to_plot: int,
+                   use_env_steps_as_x_axis: bool):
+    scalar_event = np.asarray(scalar_event)  # dimension 1: 0 = time, 1 = steps, 2 = value
+
+    if override_steps_to_plot:
+        steps_to_plot = scalar_event.shape[0]
+
+    if use_env_steps_as_x_axis:
+        x = scalar_event[:steps_to_plot, 1]
+    else:
+        x = np.arange(steps_to_plot)
+
+    y = scalar_event[:steps_to_plot, 2]
+
+    if smoothing_factor != 0.0:
+        y = smooth(y, smoothing_factor)
+
+    return x, y
+
+
+def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_prefix: str, fname_postfix: str, legend_names: str,
+                       out_path: str, override_steps_to_plot: bool, smoothing_factor: float, steps_to_plot: int, x_axis_env_steps: bool,
+                       y_label: str):
+    for i, experiment_name in enumerate(legend_names):
+        scalars = scalar_event_list[i]
+        for key, value in scalars.items():
+            if key == 'Average':  # do not plot average
+                continue
+            x, y = get_x_y_values(value, override_steps_to_plot, smoothing_factor, steps_to_plot, x_axis_env_steps)
+
+            plt.plot(x, y, label=key)
+
+        if x_axis_env_steps:
+            plt.xlabel("Training Environment Steps")
+        else:
+            plt.xlabel("Epoch")
+        plt.ylabel(y_label)
+        plt.grid()
+        plt.title(env + " Meta Testing")
+        plt.legend(frameon=True, prop={'size': 14})
+        plt.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix]) + ".svg"), bbox_inches='tight')
+        plt.show()
+
+
+def plot_tensorflow_log(log_file_path_list, legend_names, env, algo, exp_name,
                         max_epochs_to_plot=300,
                         out_path="./figures",
-                        x_axis_env_steps=False,
+                        x_axis_env_steps=True,
                         smoothing_factor=0.6,
                         override_steps_to_plot=True):
     test_avg_return_list = list()
+    test_success_rate_list = list()
 
     steps_to_plot = max_epochs_to_plot
     for log_path in log_file_path_list:
-        event_acc = EventAccumulator(log_path)
-        event_acc.Reload()
+        test_avg_return, test_success_rate = get_all_test_scalars(log_path)
 
-        # Show all tags in the log file
-        # print(event_acc.Tags())
+        test_avg_return_list.append(test_avg_return)
+        test_success_rate_list.append(test_success_rate)
 
-        test_avg_return = event_acc.Scalars('MetaTest/Average/AverageReturn')
-        steps_to_plot = min(steps_to_plot, len(test_avg_return))
-        test_avg_return_list.append(np.array(test_avg_return))
+        nr_entries = len(list(test_avg_return.values())[0])
+        steps_to_plot = min(steps_to_plot, nr_entries)
 
     log_dir = os.path.join(out_path, 'logs')
     if not os.path.exists(log_dir):
         os.mkdir(log_dir)
 
-    log_file = open(os.path.join(log_dir, fname + ".log"), "w")
+    output_file_name = "_".join([env, algo, exp_name])
+    log_file = open(os.path.join(log_dir, output_file_name + ".log"), "w")
     log_str = str(out_file_name) + "\n"
     log_file.write(log_str)
 
-    for avg_return, legend in zip(test_avg_return_list, legend_names):
-        if override_steps_to_plot:
-            steps_to_plot = avg_return.shape[0]
-
-        x = np.arange(steps_to_plot)
-        if x_axis_env_steps:
-            x = avg_return[:steps_to_plot, 1]
-        y = avg_return[:steps_to_plot, 2]  # 0 = time, 1 = steps, 2 = value
-
-        if smoothing_factor != 0.0:
-            y = smooth(y, smoothing_factor)
+    # plot average
+    for avg_returns, legend in zip(test_avg_return_list, legend_names):
+        avg_return = avg_returns['Average']
+        x, y = get_x_y_values(avg_return, override_steps_to_plot, smoothing_factor, steps_to_plot, x_axis_env_steps)
 
         plt.plot(x, y, label=legend)
 
@@ -75,18 +143,49 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
 
     log_file.close()
 
-    plt.xlabel("Epoch")
-    plt.ylabel("Average Return")
+    if x_axis_env_steps:
+        plt.xlabel("Training Environment Steps")
+    else:
+        plt.xlabel("Epoch")
+    plt.ylabel("Average Test Return")
     plt.grid()
-    plt.title(env + " Meta Test Average  Return")
+    plt.title(env + " Meta Testing")
     plt.legend(frameon=True, prop={'size': 14})
 
     out_path = os.path.join(out_path, env)
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
-    plt.savefig(fname=os.path.join(out_path, fname + ".svg"), bbox_inches='tight')
+    plt.savefig(fname=os.path.join(out_path, output_file_name + ".svg"), bbox_inches='tight')
     plt.show()
+
+    output_file_name = "_".join([env, algo])
+
+    # plot success rates per experiment
+    plot_per_test_task(scalar_event_list=test_success_rate_list,
+                       env=env,
+                       fname_prefix=output_file_name,
+                       fname_postfix="SuccessRate",
+                       legend_names=legend_names,
+                       out_path=out_path,
+                       override_steps_to_plot=override_steps_to_plot,
+                       smoothing_factor=smoothing_factor,
+                       steps_to_plot=steps_to_plot,
+                       x_axis_env_steps=x_axis_env_steps,
+                       y_label="Success Rate")
+
+    # plot avg per experiment
+    plot_per_test_task(scalar_event_list=test_avg_return_list,
+                       env=env,
+                       fname_prefix=output_file_name,
+                       fname_postfix="AverageReturn",
+                       legend_names=legend_names,
+                       out_path=out_path,
+                       override_steps_to_plot=override_steps_to_plot,
+                       smoothing_factor=smoothing_factor,
+                       steps_to_plot=steps_to_plot,
+                       x_axis_env_steps=x_axis_env_steps,
+                       y_label="Average Test Return")
 
 
 def gather_all_log_paths(main_log_path, env_dirs):
@@ -131,4 +230,7 @@ if __name__ == '__main__':
             folder_names.append(log_dir)
             log_file_path_list.append(log_file_path)
 
-        plot_tensorflow_log(log_file_path_list, legend_names=folder_names, fname=out_file_name, env=log_path.split("/")[-2])
+        plot_tensorflow_log(log_file_path_list, legend_names=folder_names,
+                            env=log_path.split("/")[-2],
+                            algo=log_path.split("/")[-3],
+                            exp_name=log_path.split("/")[-1])
