@@ -1,0 +1,10 @@
+{
+  "inner_lr": 0.05,
+  "seed": 1,
+  "epochs": 2000,
+  "episodes_per_task": 45,
+  "meta_batch_size": 45,
+  "outer_lr": 0.001,
+  "discount": 0.99,
+  "meta_testing_episodes_per_task": 10
+}

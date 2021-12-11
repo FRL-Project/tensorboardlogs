@@ -14,7 +14,7 @@ mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['figure.figsize'] = (8, 5)
 
 
-def plot_tensorflow_log(log_file_path_list, legend_names, fname,
+def plot_tensorflow_log(log_file_path_list, legend_names, fname, env,
                         max_epochs_to_plot=300,
                         out_path="./figures",
                         x_axis_env_steps=False):
@@ -41,6 +41,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname,
     log_file.write(log_str)
 
     for avg_return, legend in zip(test_avg_return_list, legend_names):
+        steps_to_plot = avg_return.shape[0]
         x = np.arange(steps_to_plot)
         if x_axis_env_steps:
             x = avg_return[:steps_to_plot, 1]
@@ -57,7 +58,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, fname,
     plt.xlabel("Epoch")
     plt.ylabel("Average Return")
     plt.grid()
-    plt.title("Meta Test Average Return")
+    plt.title(env + " Meta Test Average  Return")
     plt.legend(frameon=True, prop={'size': 14})
 
     if not os.path.exists(out_path):
@@ -82,12 +83,8 @@ def gather_all_log_paths(main_log_path, env_dirs):
 
 if __name__ == '__main__':
 
-    main_log_path = "./logs/"
-    env_dirs = ['Tensorbaord_PEARL10',
-                'Tensorboard_MAML10',
-                'Tensorboard_MAML1_Basketball',
-                'Tensorboard_MAML45',
-                'Tensorboard_PEARL1_Basketball']
+    main_log_path = "./logs/MAML"
+    env_dirs = [dir for dir in os.listdir(main_log_path)]
 
     log_paths = gather_all_log_paths(main_log_path=main_log_path, env_dirs=env_dirs)
 
@@ -113,4 +110,4 @@ if __name__ == '__main__':
             folder_names.append(log_dir)
             log_file_path_list.append(log_file_path)
 
-        plot_tensorflow_log(log_file_path_list, legend_names=folder_names, fname=out_file_name)
+        plot_tensorflow_log(log_file_path_list, legend_names=folder_names, fname=out_file_name, env=log_path.split("/")[-2])
