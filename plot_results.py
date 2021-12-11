@@ -17,6 +17,8 @@ mpl.rcParams['legend.handletextpad'] = 0.3
 mpl.rcParams['legend.handlelength'] = 1.0
 mpl.rcParams['legend.handleheight'] = 0.2
 mpl.rcParams['legend.labelspacing'] = 0.1
+mpl.rcParams['legend.borderaxespad'] = 0.2
+mpl.rcParams['legend.borderpad'] = 0.3
 
 
 def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight between 0 and 1
