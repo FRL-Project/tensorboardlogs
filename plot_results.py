@@ -13,6 +13,10 @@ mpl.rcParams['font.family'] = 'STIXGeneral'
 mpl.rcParams['font.size'] = 18
 mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['figure.figsize'] = (8, 5)
+mpl.rcParams['legend.handletextpad'] = 0.3
+mpl.rcParams['legend.handlelength'] = 1.0
+mpl.rcParams['legend.handleheight'] = 0.2
+mpl.rcParams['legend.labelspacing'] = 0.1
 
 
 def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight between 0 and 1
