@@ -86,26 +86,45 @@ def get_x_y_values(scalar_event: ScalarEvent,
 
 def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_prefix: str, fname_postfix: str, legend_names: str,
                        out_path: str, override_steps_to_plot: bool, smoothing_factor: float, steps_to_plot: int, x_axis_env_steps: bool,
-                       y_label: str):
+                       y_label: str, annotate=False):
     for i, experiment_name in enumerate(legend_names):
         scalars = scalar_event_list[i]
-        for key, value in scalars.items():
+        fig, ax = plt.subplots()
+        fig_bar, ax_bar = plt.subplots()
+        for idx, (key, value) in enumerate(scalars.items()):
             if key == 'Average':  # do not plot average
                 continue
             x, y = get_x_y_values(value, override_steps_to_plot, smoothing_factor, steps_to_plot, x_axis_env_steps)
 
-            plt.plot(x, y, label=key)
+            ax.plot(x, y, label=key)
+
+            max_y = np.max(y)
+            ax_bar.barh(y=key, width=max_y, height=0.6)
+
+            if annotate:
+                ax_bar.annotate(np.round(max_y, decimals=2),
+                                xy=(max_y, idx),
+                                ha='left', va='center')
+
+        if annotate:
+            ax_bar.set_xlim(tuple(1.05 * limit for limit in ax_bar.get_xlim()))
+        ax_bar.grid(True, which='both', axis='x')
+        ax_bar.set_xlabel("Maximum " + y_label)
+        ax_bar.set_title(env + " Meta Testing")
+        fig_bar.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix, "bar"]) + ".svg"),
+                        bbox_inches='tight')
+        fig_bar.show()
 
         if x_axis_env_steps:
-            plt.xlabel("Training Environment Steps")
+            ax.set_xlabel("Training Environment Steps")
         else:
-            plt.xlabel("Epoch")
-        plt.ylabel(y_label)
-        plt.grid()
-        plt.title(env + " Meta Testing")
-        plt.legend(frameon=True, prop={'size': 14})
-        plt.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix]) + ".svg"), bbox_inches='tight')
-        plt.show()
+            ax.set_xlabel("Epoch")
+        ax.set_ylabel(y_label)
+        ax.grid()
+        ax.set_title(env + " Meta Testing")
+        ax.legend(frameon=True, prop={'size': 14})
+        fig.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix]) + ".svg"), bbox_inches='tight')
+        fig.show()
 
 
 def plot_tensorflow_log(log_file_path_list, legend_names, env, algo, exp_name,
@@ -178,7 +197,8 @@ def plot_tensorflow_log(log_file_path_list, legend_names, env, algo, exp_name,
                        smoothing_factor=smoothing_factor,
                        steps_to_plot=steps_to_plot,
                        x_axis_env_steps=x_axis_env_steps,
-                       y_label="Success Rate")
+                       y_label="Success Rate",
+                       annotate=True)
 
     # plot avg per experiment
     plot_per_test_task(scalar_event_list=test_avg_return_list,
