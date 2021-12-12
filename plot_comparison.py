@@ -1,0 +1,110 @@
+import os
+
+import numpy as np
+from matplotlib import pyplot as plt
+
+from matplotlib_utils import set_matplotlib_properties
+from tensorboard_utils import get_scalar_lists, get_x_y_values
+
+
+def subcategorybar(X, vals, x_label, legends, width=0.8):
+    # https://stackoverflow.com/questions/48157735/plot-multiple-bars-for-categorical-data
+    n = len(vals)
+    _X = np.arange(len(X))
+
+    fig, ax = plt.subplots()
+
+    for i in range(n):
+        ax.barh(_X - width / 2. + i / float(n) * width, vals[i],
+                width / float(n), align="edge")
+
+    ax.set_yticks(_X, X)
+    ax.legend(legends)
+    ax.grid(True, which='both', axis='x')
+    ax.set_xlabel(x_label)
+    ax.set_title("Meta Testing - Success Rate")
+    fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", "SuccessRate", "bar"]) + ".svg"),
+                bbox_inches='tight')
+    fig.show()
+
+
+if __name__ == '__main__':
+    set_matplotlib_properties()
+
+    algo_names = ["MAML",
+                  "PEARL",
+                  "MACAW"]
+
+    x_axis_nr = [0,
+                 1,
+                 0]  # TODO set MACAW on different axis
+
+    paths = ["logs/MAML/ML10/outer_lr/outer-lr=0.001",
+             "logs/PEARL/ML10/lr/lr=3e-4",
+             "logs/MAML/ML10/outer_lr/outer-lr=0.01"]  # TODO replace path
+
+    out_path = "./comparison"
+
+    use_env_steps_as_x_axis = True
+
+    ##################################################################################################
+    tensorboard_file_paths = list()
+    for cur_path in paths:
+        tensorboard_file_paths.append([os.path.join(cur_path, file) for file in os.listdir(cur_path) if "events" in file][0])
+
+    min_nr_steps, test_avg_return_list, test_success_rate_list = get_scalar_lists(tensorboard_file_paths)
+
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twiny()
+
+    ax = [ax1, ax2]
+    lines = list()
+    for i, (avg_returns, legend, ax_nr) in enumerate(zip(test_avg_return_list, algo_names, x_axis_nr)):
+        avg_return = avg_returns['Average']
+        x, y = get_x_y_values(avg_return,
+                              smoothing_factor=0.6,
+                              override_steps_to_plot=True,
+                              steps_to_plot=300,
+                              use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+        lines += ax[ax_nr].plot(x, y, label=legend, color=f"C{i}")
+        if ax_nr != 0:
+            ax[ax_nr].tick_params(axis='x', colors=f"C{ax_nr}")
+
+    if use_env_steps_as_x_axis:
+        ax1.set_xlabel("Training Environment Steps")
+    else:
+        ax1.set_xlabel("Epoch")
+
+    ax1.set_ylabel("Average Test Return")
+    ax1.grid(True)
+
+    ax1.set_title("Meta Testing")
+
+    ax1.legend(lines, algo_names, frameon=True, prop={'size': 14})
+
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
+
+    fig.savefig(fname=os.path.join(out_path, "comparison" + ".svg"), bbox_inches='tight')
+    fig.show()
+
+    ###############
+    y_label = "Maximum Success Rate"
+
+    max_y = list()
+    for i, (success_rates, experiment_name) in enumerate(zip(test_success_rate_list, algo_names)):
+        max_y_per_task = dict()
+        for idx, (key, value) in enumerate(success_rates.items()):
+            if key == 'Average':  # do not plot average
+                continue
+            x, y = get_x_y_values(value,
+                                  smoothing_factor=0.6,
+                                  override_steps_to_plot=True,
+                                  steps_to_plot=300,
+                                  use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+
+            max_y_per_task[key] = np.max(y)
+        max_y.append(max_y_per_task)
+
+    # dict_per_task = {dict_key: [dic[dict_key] for dic in max_y] for dict_key in max_y[0]}
+    subcategorybar(list(max_y[0].keys()), [list(i.values()) for i in max_y], x_label=y_label, legends=algo_names)
