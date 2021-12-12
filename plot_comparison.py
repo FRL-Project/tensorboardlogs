@@ -19,13 +19,32 @@ def subcategorybar(X, vals, x_label, legends, width=0.8):
                 width / float(n), align="edge")
 
     ax.set_yticks(_X, X)
-    ax.legend(legends)
+    ax.legend(legends, frameon=True, prop={'size': 14})
     ax.grid(True, which='both', axis='x')
     ax.set_xlabel(x_label)
     # ax.set_title("Meta Testing - Success Rate")
-    fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", "SuccessRate", "bar"]) + ".svg"),
+    fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", x_label, "bar"]) + ".svg"),
                 bbox_inches='tight')
     fig.show()
+
+
+def max_values_bar_plot(test_list, algo_names, x_label, use_env_steps_as_x_axis):
+    max_y = list()
+    for i, (scalars, experiment_name) in enumerate(zip(test_list, algo_names)):
+        max_y_per_task = dict()
+        for idx, (key, value) in enumerate(scalars.items()):
+            if key == 'Average':  # do not plot average
+                continue
+            x, y = get_x_y_values(value,
+                                  smoothing_factor=0.6,
+                                  override_steps_to_plot=True,
+                                  steps_to_plot=300,
+                                  use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+
+            max_y_per_task[key] = np.max(y)
+        max_y.append(max_y_per_task)
+    # dict_per_task = {dict_key: [dic[dict_key] for dic in max_y] for dict_key in max_y[0]}
+    subcategorybar(list(max_y[0].keys()), [list(i.values()) for i in max_y], x_label=x_label, legends=algo_names)
 
 
 if __name__ == '__main__':
@@ -85,26 +104,17 @@ if __name__ == '__main__':
     if not os.path.exists(out_path):
         os.mkdir(out_path)
 
-    fig.savefig(fname=os.path.join(out_path, "comparison" + ".svg"), bbox_inches='tight')
+    fig.savefig(fname=os.path.join(out_path, "comparison_Average_Return" + ".svg"), bbox_inches='tight')
     fig.show()
 
     ###############
-    y_label = "Maximum Success Rate"
+    max_values_bar_plot(test_list=test_success_rate_list,
+                        x_label="Maximum Success Rate",
+                        algo_names=algo_names,
+                        use_env_steps_as_x_axis=use_env_steps_as_x_axis)
 
-    max_y = list()
-    for i, (success_rates, experiment_name) in enumerate(zip(test_success_rate_list, algo_names)):
-        max_y_per_task = dict()
-        for idx, (key, value) in enumerate(success_rates.items()):
-            if key == 'Average':  # do not plot average
-                continue
-            x, y = get_x_y_values(value,
-                                  smoothing_factor=0.6,
-                                  override_steps_to_plot=True,
-                                  steps_to_plot=300,
-                                  use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+    max_values_bar_plot(test_list=test_avg_return_list,
+                        x_label="Maximum Average Test Return",
+                        algo_names=algo_names,
+                        use_env_steps_as_x_axis=use_env_steps_as_x_axis)
 
-            max_y_per_task[key] = np.max(y)
-        max_y.append(max_y_per_task)
-
-    # dict_per_task = {dict_key: [dic[dict_key] for dic in max_y] for dict_key in max_y[0]}
-    subcategorybar(list(max_y[0].keys()), [list(i.values()) for i in max_y], x_label=y_label, legends=algo_names)
