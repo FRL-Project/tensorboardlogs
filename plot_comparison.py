@@ -23,7 +23,7 @@ def subcategorybar(X, vals, x_label, legends, width=0.8):
     ax.grid(True, which='both', axis='x')
     ax.set_xlabel(x_label)
     # ax.set_title("Meta Testing - Success Rate")
-    fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", x_label, "bar"]) + ".svg"),
+    fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", x_label.replace(" ", "_"), "bar"]) + ".svg"),
                 bbox_inches='tight')
     fig.show()
 
