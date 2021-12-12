@@ -22,7 +22,7 @@ def subcategorybar(X, vals, x_label, legends, width=0.8):
     ax.legend(legends)
     ax.grid(True, which='both', axis='x')
     ax.set_xlabel(x_label)
-    ax.set_title("Meta Testing - Success Rate")
+    # ax.set_title("Meta Testing - Success Rate")
     fig.savefig(fname=os.path.join(out_path, "_".join(["comparison", "SuccessRate", "bar"]) + ".svg"),
                 bbox_inches='tight')
     fig.show()
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     ax1.set_ylabel("Average Test Return")
     ax1.grid(True)
 
-    ax1.set_title("Meta Testing")
+    # ax1.set_title("Meta Testing")
 
     ax1.legend(lines, algo_names, frameon=True, prop={'size': 14})
 
