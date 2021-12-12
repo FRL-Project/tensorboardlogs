@@ -19,7 +19,7 @@ def subcategorybar(X, vals, x_label, legends, width=0.8):
                 width / float(n), align="edge")
 
     ax.set_yticks(_X, X)
-    ax.legend(legends, frameon=True, prop={'size': 14})
+    ax.legend(legends, frameon=True)
     ax.grid(True, which='both', axis='x')
     ax.set_xlabel(x_label)
     # ax.set_title("Meta Testing - Success Rate")
@@ -55,8 +55,8 @@ if __name__ == '__main__':
                   "MACAW"]
 
     x_axis_nr = [0,
-                 1,
-                 0]  # TODO set MACAW on different axis
+                 0,
+                 1]  # TODO set MACAW on different axis
 
     paths = ["logs/MAML/ML10/outer_lr/outer-lr=0.001",
              "logs/PEARL/ML10/lr/lr=3e-4",
@@ -87,7 +87,8 @@ if __name__ == '__main__':
                               use_env_steps_as_x_axis=use_env_steps_as_x_axis)
         lines += ax[ax_nr].plot(x, y, label=legend, color=f"C{i}")
         if ax_nr != 0:
-            ax[ax_nr].tick_params(axis='x', colors=f"C{ax_nr}")
+            ax[ax_nr].tick_params(axis='x', colors=f"C{i}")
+            ax2.set_xlabel("Training Steps", color=f"C{i}")
 
     if use_env_steps_as_x_axis:
         ax1.set_xlabel("Training Environment Steps")
@@ -99,7 +100,7 @@ if __name__ == '__main__':
 
     # ax1.set_title("Meta Testing")
 
-    ax1.legend(lines, algo_names, frameon=True, prop={'size': 14})
+    ax1.legend(lines, algo_names, frameon=True)
 
     if not os.path.exists(out_path):
         os.mkdir(out_path)
