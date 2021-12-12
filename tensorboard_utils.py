@@ -1,6 +1,7 @@
 from typing import List
 
-from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+import numpy as np
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator, ScalarEvent
 
 
 def get_scalars(event_acc, tags):
@@ -46,3 +47,38 @@ def get_scalar_lists(log_file_path_list: List[str]):
         min_nr_steps = min(min_nr_steps, nr_entries)
 
     return min_nr_steps, test_avg_return_list, test_success_rate_list
+
+
+def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight between 0 and 1
+    # https://stackoverflow.com/questions/42281844/what-is-the-mathematics-behind-the-smoothing-parameter-in-tensorboards-scalar
+    last = scalars[0]  # First value in the plot (first timestep)
+    smoothed = list()
+    for point in scalars:
+        smoothed_val = last * weight + (1 - weight) * point  # Calculate smoothed value
+        smoothed.append(smoothed_val)  # Save it
+        last = smoothed_val  # Anchor the last smoothed value
+
+    return smoothed
+
+
+def get_x_y_values(scalar_event: ScalarEvent,
+                   override_steps_to_plot: bool,
+                   smoothing_factor: float,
+                   steps_to_plot: int,
+                   use_env_steps_as_x_axis: bool):
+    scalar_event = np.asarray(scalar_event)  # dimension 1: 0 = time, 1 = steps, 2 = value
+
+    if override_steps_to_plot:
+        steps_to_plot = scalar_event.shape[0]
+
+    if use_env_steps_as_x_axis:
+        x = scalar_event[:steps_to_plot, 1]
+    else:
+        x = np.arange(steps_to_plot)
+
+    y = scalar_event[:steps_to_plot, 2]
+
+    if smoothing_factor != 0.0:
+        y = smooth(y, smoothing_factor)
+
+    return x, y

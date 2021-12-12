@@ -2,60 +2,12 @@
 import os
 from typing import List
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import ScalarEvent
 
-from data_utils import get_scalar_lists
-
-# TODO not sure if this is the correct font?
-# use latex font
-mpl.rcParams['font.family'] = 'STIXGeneral'
-mpl.rcParams['font.size'] = 18
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['figure.figsize'] = (8, 5)
-mpl.rcParams['legend.handletextpad'] = 0.3
-mpl.rcParams['legend.handlelength'] = 1.0
-mpl.rcParams['legend.handleheight'] = 0.2
-mpl.rcParams['legend.labelspacing'] = 0.1
-mpl.rcParams['legend.borderaxespad'] = 0.2
-mpl.rcParams['legend.borderpad'] = 0.3
-
-
-def smooth(scalars: List[float], weight: float) -> List[float]:  # Weight between 0 and 1
-    # https://stackoverflow.com/questions/42281844/what-is-the-mathematics-behind-the-smoothing-parameter-in-tensorboards-scalar
-    last = scalars[0]  # First value in the plot (first timestep)
-    smoothed = list()
-    for point in scalars:
-        smoothed_val = last * weight + (1 - weight) * point  # Calculate smoothed value
-        smoothed.append(smoothed_val)  # Save it
-        last = smoothed_val  # Anchor the last smoothed value
-
-    return smoothed
-
-
-def get_x_y_values(scalar_event: ScalarEvent,
-                   override_steps_to_plot: bool,
-                   smoothing_factor: float,
-                   steps_to_plot: int,
-                   use_env_steps_as_x_axis: bool):
-    scalar_event = np.asarray(scalar_event)  # dimension 1: 0 = time, 1 = steps, 2 = value
-
-    if override_steps_to_plot:
-        steps_to_plot = scalar_event.shape[0]
-
-    if use_env_steps_as_x_axis:
-        x = scalar_event[:steps_to_plot, 1]
-    else:
-        x = np.arange(steps_to_plot)
-
-    y = scalar_event[:steps_to_plot, 2]
-
-    if smoothing_factor != 0.0:
-        y = smooth(y, smoothing_factor)
-
-    return x, y
+from matplotlib_utils import set_matplotlib_properties
+from tensorboard_utils import get_scalar_lists, get_x_y_values
 
 
 def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_prefix: str, fname_postfix: str, legend_names: str,
@@ -193,6 +145,7 @@ def gather_all_log_paths(main_log_path, env_dirs):
 
 
 if __name__ == '__main__':
+    set_matplotlib_properties()
 
     main_log_path = "./logs/MAML"
     env_dirs = [dir for dir in os.listdir(main_log_path)]
