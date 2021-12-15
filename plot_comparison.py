@@ -69,7 +69,7 @@ def single_tasks_plot(test_list, algo_names, use_env_steps_as_x_axis, y_label, )
         ax.grid(True)
         ax.legend(frameon=True, prop={'size': 14})
         ax.set_title(experiment_name)
-        fig.savefig(fname=os.path.join(out_path, experiment_name + "_" + y_label + ".svg"), bbox_inches='tight')
+        fig.savefig(fname=os.path.join(out_path, experiment_name + "_" + y_label.replace(" ", "_") + ".svg"), bbox_inches='tight')
         fig.show()
 
 
