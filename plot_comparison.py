@@ -47,6 +47,31 @@ def max_values_bar_plot(test_list, algo_names, x_label, use_env_steps_as_x_axis)
     subcategorybar(list(max_y[0].keys()), [list(i.values()) for i in max_y], x_label=x_label, legends=algo_names)
 
 
+def single_tasks_plot(test_list, algo_names, use_env_steps_as_x_axis, y_label):
+    for i, (scalars, experiment_name) in enumerate(zip(test_list, algo_names)):
+        fig, ax = plt.subplots()
+        for idx, (key, value) in enumerate(scalars.items()):
+            if key == 'Average':  # do not plot average
+                continue
+            x, y = get_x_y_values(value,
+                                  smoothing_factor=0.6,
+                                  override_steps_to_plot=True,
+                                  steps_to_plot=300,
+                                  use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+            ax.plot(x, y, label=key)
+
+        if use_env_steps_as_x_axis:
+            ax.set_xlabel("Training Environment Steps")
+        else:
+            ax.set_xlabel("Epoch")
+
+        ax.set_ylabel(y_label)
+        ax.grid(True)
+        ax.legend(frameon=True, prop={'size': 14})
+        ax.set_title(experiment_name)
+        fig.show()
+
+
 if __name__ == '__main__':
     set_matplotlib_properties()
 
@@ -59,8 +84,8 @@ if __name__ == '__main__':
                  1]  # TODO set MACAW on different axis
 
     paths = ["logs/MAML/ML10/outer_lr/outer-lr=0.001",
-             "logs/PEARL/ML10/lr/lr=3e-4",
-             "logs/MAML/ML10/outer_lr/outer-lr=0.01"]  # TODO replace path
+             "logs/PEARL_new/ML10/lr/lr=3e-4",
+             "logs/MACAW/ML10/lr/lr"]  # TODO replace path
 
     out_path = "./comparison"
 
@@ -119,3 +144,12 @@ if __name__ == '__main__':
                         algo_names=algo_names,
                         use_env_steps_as_x_axis=use_env_steps_as_x_axis)
 
+    single_tasks_plot(test_list=test_avg_return_list,
+                      y_label="Average Return",
+                      algo_names=algo_names,
+                      use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+
+    single_tasks_plot(test_list=test_success_rate_list,
+                      y_label="Success Rate",
+                      algo_names=algo_names,
+                      use_env_steps_as_x_axis=use_env_steps_as_x_axis)
