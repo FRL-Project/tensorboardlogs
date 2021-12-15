@@ -145,7 +145,7 @@ if __name__ == '__main__':
                         use_env_steps_as_x_axis=use_env_steps_as_x_axis)
 
     single_tasks_plot(test_list=test_avg_return_list,
-                      y_label="Average Return",
+                      y_label="Average Test Return",
                       algo_names=algo_names,
                       use_env_steps_as_x_axis=use_env_steps_as_x_axis)
 
