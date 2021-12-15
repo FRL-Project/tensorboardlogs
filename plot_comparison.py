@@ -47,7 +47,7 @@ def max_values_bar_plot(test_list, algo_names, x_label, use_env_steps_as_x_axis)
     subcategorybar(list(max_y[0].keys()), [list(i.values()) for i in max_y], x_label=x_label, legends=algo_names)
 
 
-def single_tasks_plot(test_list, algo_names, use_env_steps_as_x_axis, y_label):
+def single_tasks_plot(test_list, algo_names, use_env_steps_as_x_axis, y_label, ):
     for i, (scalars, experiment_name) in enumerate(zip(test_list, algo_names)):
         fig, ax = plt.subplots()
         for idx, (key, value) in enumerate(scalars.items()):
@@ -69,6 +69,7 @@ def single_tasks_plot(test_list, algo_names, use_env_steps_as_x_axis, y_label):
         ax.grid(True)
         ax.legend(frameon=True, prop={'size': 14})
         ax.set_title(experiment_name)
+        fig.savefig(fname=os.path.join(out_path, experiment_name + "_" + y_label + ".svg"), bbox_inches='tight')
         fig.show()
 
 
