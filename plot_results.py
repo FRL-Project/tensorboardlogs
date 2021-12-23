@@ -147,7 +147,7 @@ def gather_all_log_paths(main_log_path, env_dirs):
 if __name__ == '__main__':
     set_matplotlib_properties()
 
-    main_log_path = "./logs/MAML"
+    main_log_path = "./logs/MACAW".replace("/", os.path.sep)
     env_dirs = [dir for dir in os.listdir(main_log_path)]
 
     log_paths = gather_all_log_paths(main_log_path=main_log_path, env_dirs=env_dirs)
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         print(log_path)
         print("---------------")
 
-        out_file_name = log_path.replace("/", "_")[2:]
+        out_file_name = log_path.replace(os.path.sep, "_")[2:]
         dirs = [directory for directory in os.listdir(log_path) if os.path.isdir(os.path.join(log_path, directory))]
         dirs.sort()
 
@@ -175,6 +175,6 @@ if __name__ == '__main__':
             log_file_path_list.append(log_file_path)
 
         plot_tensorflow_log(log_file_path_list, legend_names=folder_names,
-                            env=log_path.split("/")[-2],
-                            algo=log_path.split("/")[-3],
-                            exp_name=log_path.split("/")[-1])
+                            env=log_path.split(os.path.sep)[-2],
+                            algo=log_path.split(os.path.sep)[-3],
+                            exp_name=log_path.split(os.path.sep)[-1])
