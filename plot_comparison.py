@@ -82,11 +82,11 @@ if __name__ == '__main__':
 
     x_axis_nr = [0,
                  0,
-                 1]  # TODO set MACAW on different axis
+                 1]
 
     paths = ["logs/MAML/ML10/outer_lr/outer-lr=0.001",
              "logs/PEARL_new/ML10/lr/lr=3e-4",
-             "logs/MACAW/ML10/lr/lr"]  # TODO replace path
+             "logs/MACAW/ML10/lr/pol-lr=0.001_val-lr=0.1"]
 
     out_path = "./comparison"
 
