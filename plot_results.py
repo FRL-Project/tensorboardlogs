@@ -10,7 +10,7 @@ from matplotlib_utils import set_matplotlib_properties
 from tensorboard_utils import get_scalar_lists, get_x_y_values
 
 
-def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_prefix: str, fname_postfix: str, legend_names: str,
+def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_prefix: str, exp_name: str, fname_postfix: str, legend_names: str,
                        out_path: str, override_steps_to_plot: bool, smoothing_factor: float, steps_to_plot: int, x_axis_env_steps: bool,
                        y_label: str, annotate=False):
     for i, experiment_name in enumerate(legend_names):
@@ -37,7 +37,7 @@ def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_pre
         ax_bar.grid(True, which='both', axis='x')
         ax_bar.set_xlabel("Maximum " + y_label)
         ax_bar.set_title(env + " Meta Testing")
-        fig_bar.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix, "bar"]) + ".svg"),
+        fig_bar.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, exp_name, experiment_name, fname_postfix, "bar"]) + ".svg"),
                         bbox_inches='tight')
         fig_bar.show()
 
@@ -49,7 +49,7 @@ def plot_per_test_task(scalar_event_list: List[ScalarEvent], env: str, fname_pre
         ax.grid()
         ax.set_title(env + " Meta Testing")
         ax.legend(frameon=True, prop={'size': 14})
-        fig.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, experiment_name, fname_postfix]) + ".svg"), bbox_inches='tight')
+        fig.savefig(fname=os.path.join(out_path, "_".join([fname_prefix, exp_name, experiment_name, fname_postfix]) + ".svg"), bbox_inches='tight')
         fig.show()
 
 
@@ -108,6 +108,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, env, algo, exp_name,
                        env=env,
                        fname_prefix=output_file_name,
                        fname_postfix="SuccessRate",
+                       exp_name=exp_name,
                        legend_names=legend_names,
                        out_path=out_path,
                        override_steps_to_plot=override_steps_to_plot,
@@ -122,6 +123,7 @@ def plot_tensorflow_log(log_file_path_list, legend_names, env, algo, exp_name,
                        env=env,
                        fname_prefix=output_file_name,
                        fname_postfix="AverageReturn",
+                       exp_name=exp_name,
                        legend_names=legend_names,
                        out_path=out_path,
                        override_steps_to_plot=override_steps_to_plot,
