@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 
 from matplotlib_utils import set_matplotlib_properties
 from tensorboard_utils import get_scalar_lists, get_x_y_values
@@ -86,7 +87,7 @@ if __name__ == '__main__':
 
     paths = ["logs/MAML/ML10/outer_lr/outer-lr=0.001",
              "logs/PEARL_new/ML10/lr/lr=3e-4",
-             "logs/MACAW/ML10/lr/pol-lr=0.001_val-lr=0.1"]
+             "logs/MACAW/ML10/inner-lr/pol-lr=0.001_val-lr=0.1"]
 
     out_path = "./comparison"
 
@@ -111,6 +112,15 @@ if __name__ == '__main__':
                               override_steps_to_plot=True,
                               steps_to_plot=300,
                               use_env_steps_as_x_axis=use_env_steps_as_x_axis)
+        if ax_nr != 0:
+            # ugly: read training steps for MACAW
+            event_acc = EventAccumulator(paths[i])
+            event_acc.Reload()
+            training_steps_MACAW = np.asarray(event_acc.Scalars('TrainSteps'))[:, 2]
+            x = training_steps_MACAW
+            ax[ax_nr].tick_params(axis='x', colors=f"C{i}")
+            ax2.set_xlabel("Training Iterations", color=f"C{i}")
+
         lines += ax[ax_nr].plot(x, y, label=legend, color=f"C{i}")
         if ax_nr != 0:
             ax[ax_nr].tick_params(axis='x', colors=f"C{i}")
